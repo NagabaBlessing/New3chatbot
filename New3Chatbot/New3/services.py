@@ -103,3 +103,18 @@ class WitClient:
 #     print(client.send_text("hello"))
 #     # with open("speech.wav", "rb") as f:
 #     #     print(client.send_speech(f.read(), "audio/wav"))
+import os
+
+def ask_wit_ai(message: str):
+    """
+    Simple helper used by Django views.
+    """
+    token = os.getenv("WIT_TOKEN")
+    if not token:
+        raise RuntimeError("WIT_TOKEN environment variable not set")
+
+    client = WitClient(token=token)
+    try:
+        return client.send_text(message)
+    finally:
+        client.close()

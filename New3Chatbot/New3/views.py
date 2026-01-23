@@ -1,13 +1,36 @@
 from django.shortcuts import render
 from .services import ask_wit_ai
 # Create your views here.
+
 def chatbot_view(request):
     response = None
-    
-    if request.method =="POST":
-        user_input = request.POST.get('user_input')
-        response = ask_wit_ai(user_input)
-    return render(request, 'chatbot.html',{'response': response})    
+    error = None
+
+    if request.method == "POST":
+        user_input = request.POST.get("user_input", "").strip()
+        if user_input:
+            try:
+                raw = ask_wit_ai(user_input)
+
+                # Try to extract something friendly
+                response_text = raw.get("text") if isinstance(raw, dict) else None
+
+                response = {
+                    "text": response_text,
+                    "raw": raw,
+                }
+            except Exception as e:
+                error = str(e)
+
+    return render(
+        request,
+        "chatbot.html",
+        {
+            "response": response,
+            "error": error,
+        },
+    )
+   
 
 
 

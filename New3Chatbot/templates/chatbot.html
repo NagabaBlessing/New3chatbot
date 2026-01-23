@@ -153,17 +153,14 @@
 
         {# Example: if your view maps a bot text to response_text, prefer that: #}
         {% if response.text %}
-          <div class="message bot">{{ response.text }}</div>
-        {% elif response.get "text" %}
-          {# alternative dotted notation for dict-like context #}
-          <div class="message bot">{{ response.get "text" }}</div>
-        {% else %}
-          {# show raw response for debugging / development #}
-          <div>
-            <div class="message bot">Bot response (raw)</div>
-            <pre class="raw">{{ response }}</pre>
-          </div>
-        {% endif %}
+  <div class="message bot">{{ response.text }}</div>
+{% elif response.raw %}
+  <div>
+    <div class="message bot">Bot response (raw)</div>
+    <pre class="raw">{{ response.raw }}</pre>
+  </div>
+{% endif %}
+
       {% else %}
         <div class="message bot">No conversation yet — send a message to start.</div>
       {% endif %}
