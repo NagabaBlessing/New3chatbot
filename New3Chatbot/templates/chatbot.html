@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Chatbot</title>
+  <style>
+    :root {
+      --bg: #f6f8fa;
+      --card: #ffffff;
+      --muted: #6b7280;
+      --accent: #2563eb;
+      --user: #0ea5a4;
+      --bot: #7c3aed;
+      --gap: 12px;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, #eef2ff 0%, var(--bg) 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 720px;
+      background: var(--card);
+      border-radius: 10px;
+      box-shadow: 0 8px 30px rgba(15, 23, 42, 0.08);
+      padding: 20px;
+    }
+
+    h1 {
+      margin: 0 0 12px 0;
+      font-size: 20px;
+    }
+
+    form {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    textarea {
+      flex: 1;
+      min-height: 72px;
+      resize: vertical;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid #e6e9ef;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    button {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+
+    .alert {
+      background: #fff7ed;
+      border: 1px solid #ffedd5;
+      color: #92400e;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+
+    .chat {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 52vh;
+      overflow: auto;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #f1f5f9;
+      background: linear-gradient(180deg, rgba(255,255,255,0.8), rgba(250,250,250,0.8));
+    }
+
+    .message {
+      display: inline-block;
+      padding: 10px 12px;
+      border-radius: 10px;
+      max-width: 80%;
+      word-wrap: break-word;
+    }
+
+    .user {
+      align-self: flex-end;
+      background: linear-gradient(90deg, rgba(14,165,164,0.95), rgba(6,182,212,0.95));
+      color: white;
+    }
+
+    .bot {
+      align-self: flex-start;
+      background: linear-gradient(90deg, rgba(124,58,237,0.95), rgba(99,102,241,0.95));
+      color: white;
+    }
+
+    pre.raw {
+      background: #0f172a;
+      color: #e6eef8;
+      padding: 12px;
+      border-radius: 8px;
+      overflow: auto;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    footer.note {
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="container" role="main">
+    <h1>Chat with Wit.ai</h1>
+    <p class="meta">Type a message and press Send. Responses come from Wit.ai (raw JSON by default).</p>
+
+    {% if error %}
+      <div class="alert" role="alert">{{ error }}</div>
+    {% endif %}
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <textarea name="user_input" id="user_input" placeholder="Say something..." required>{{ request.POST.user_input|default_if_none:"" }}</textarea>
+      <button type="submit">Send</button>
+    </form>
+
+    <div class="chat" aria-live="polite">
+      {% if response %}
+        {# If you return a structured response you can customize rendering below.
+           Try to display a friendly text if available, otherwise show raw JSON. #}
+
+        {# Example: if your view maps a bot text to response_text, prefer that: #}
+        {% if response.text %}
+          <div class="message bot">{{ response.text }}</div>
+        {% elif response.get "text" %}
+          {# alternative dotted notation for dict-like context #}
+          <div class="message bot">{{ response.get "text" }}</div>
+        {% else %}
+          {# show raw response for debugging / development #}
+          <div>
+            <div class="message bot">Bot response (raw)</div>
+            <pre class="raw">{{ response }}</pre>
+          </div>
+        {% endif %}
+      {% else %}
+        <div class="message bot">No conversation yet — send a message to start.</div>
+      {% endif %}
+    </div>
+
+    <footer class="note">
+      Keep your WIT_TOKEN secret. This page simply posts to the Django view which calls Wit.ai on the server.
+    </footer>
+  </div>
+
+  <script>
+    // small UX helpers: focus textarea and restore scroll to bottom when page reloads with response
+    (function () {
+      var ta = document.getElementById('user_input');
+      if (ta) ta.focus();
+
+      var chat = document.querySelector('.chat');
+      if (chat) chat.scrollTop = chat.scrollHeight;
+    })();
+  </script>
+</body>
+</html>
