@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Chatbot</title>
+
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #eef2ff;
+      font-family: system-ui, sans-serif;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 720px;
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 8px 30px rgba(0,0,0,.1);
+    }
+
+    .chat {
+      border: 1px solid #eee;
+      border-radius: 8px;
+      padding: 10px;
+      margin-top: 16px;
+      max-height: 50vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .message {
+      padding: 10px 12px;
+      border-radius: 10px;
+      max-width: 80%;
+    }
+
+    .user {
+      align-self: flex-end;
+      background: #0ea5a4;
+      color: white;
+    }
+
+    .bot {
+      align-self: flex-start;
+      background: #7c3aed;
+      color: white;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+
+    button {
+      margin-top: 8px;
+      padding: 10px;
+      width: 100%;
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h2>Chat with AI</h2>
+
+    {% if error %}
+      <p style="color:red">{{ error }}</p>
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      <textarea id="user_input" name="user_input" rows="3"
+        placeholder="Say something...">{{ user_input }}</textarea>
+      <button type="submit">Send</button>
+    </form>
+
+    <div class="chat">
+      {% if user_input %}
+        <div class="message user">
+          {{ user_input }}
+        </div>
+      {% endif %}
+
+      {% if bot_reply %}
+        <div class="message bot">
+          {{ bot_reply }}
+        </div>
+      {% else %}
+        <div class="message bot">
+          No conversation yet — send a message.
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <script>
+    const chat = document.querySelector('.chat');
+    if (chat) chat.scrollTop = chat.scrollHeight;
+    const ta = document.getElementById('user_input');
+    if (ta) ta.focus();
+  </script>
+</body>
+</html>

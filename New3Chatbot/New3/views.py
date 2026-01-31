@@ -1,61 +1,19 @@
+from django.http import JsonResponse
 from django.shortcuts import render
-from .services import ask_wit_ai
-# Create your views here.
+from .services import LLMClient
 
 def chatbot_view(request):
-    response = None
-    error = None
+    # 1️⃣ Show the chat UI
+    if request.method == "GET":
+        return render(request, "chatbot.html")
 
+    # 2️⃣ Handle chat messages
     if request.method == "POST":
-        user_input = request.POST.get("user_input", "").strip()
-        if user_input:
-            try:
-                raw = ask_wit_ai(user_input)
+        user_message = request.POST.get("message", "")
 
-                # Try to extract something friendly
-                response_text = raw.get("text") if isinstance(raw, dict) else None
+        client = LLMClient()
+        ai_reply = client.generate_reply(user_message)
 
-                response = {
-                    "text": response_text,
-                    "raw": raw,
-                }
-            except Exception as e:
-                error = str(e)
-
-    return render(
-        request,
-        "chatbot.html",
-        {
-            "response": response,
-            "error": error,
-        },
-    )
-   
-
-
-
-
-
-from django.views.decorators.http import require_http_methods
-
-from .services import ask_wit_ai
-
-
-@require_http_methods(["GET", "POST"])
-def chatbot_view(request):
-    response = None
-    error = None
-
-    if request.method == "POST":
-        user_input = request.POST.get("user_input", "").strip()
-        if not user_input:
-            error = "Please enter a message."
-        else:
-            try:
-                # ask_wit_ai returns the raw JSON response from Wit.ai
-                response = ask_wit_ai(user_input)
-            except Exception as exc:
-                # Keep the message simple for users; log fuller details if needed
-                error = f"Failed to contact Wit.ai: {exc}"
-
-    return render(request, "chatbot.html", {"response": response, "error": error})
+        return JsonResponse({"reply": ai_reply})
+import os
+print("GROQ KEY:", os.getenv("GROQ_API_KEY"))
