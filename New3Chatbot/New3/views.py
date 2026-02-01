@@ -1,19 +1,26 @@
-from django.http import JsonResponse
 from django.shortcuts import render
-from .services import LLMClient
+from .services.LLMClient import LLMClient
 
 def chatbot_view(request):
-    # 1️⃣ Show the chat UI
-    if request.method == "GET":
-        return render(request, "chatbot.html")
+    response_text = None
+    error = None
+    user_input = ""
 
-    # 2️⃣ Handle chat messages
     if request.method == "POST":
-        user_message = request.POST.get("message", "")
+        user_input = request.POST.get("user_input")
 
-        client = LLMClient()
-        ai_reply = client.generate_reply(user_message)
+        try:
+            client = LLMClient()
+            response_text = client.generate_reply(user_input)
+        except Exception as e:
+            error = str(e)
 
-        return JsonResponse({"reply": ai_reply})
-import os
-print("GROQ KEY:", os.getenv("GROQ_API_KEY"))
+    return render(
+        request,
+        "chatbot.html",
+        {
+            "bot_reply": response_text,
+            "user_input": user_input,
+            "error": error,
+        }
+    )

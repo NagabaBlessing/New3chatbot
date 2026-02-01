@@ -1,10 +1,6 @@
 from pathlib import Path
 import os
 
-# settings.py
-#WIT_TOKEN = os.getenv("WIT_TOKEN", "3KCR3PYKO3GPYGHSSEVEJ5D3BSEU6K36")
-#GROQ_API_KEY = os.getenv("GROQ_API_KEY", "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")
-
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -110,4 +106,4 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
-#WIT_API = 'Authorization: Bearer 3KCR3PYKO3GPYGHSSEVEJ5D3BSEU6K36 https://api.wit.ai/message?v=20260131&q='
+
